@@ -43,12 +43,6 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
-  .color-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
   .common-controls {
     display: flex;
     justify-content: left;
@@ -70,8 +64,6 @@
 
 <div class=color-palette>
   {#each colorIds as colorId, index (colorId)}
-  <div class=color-container>
     <ColorControls bind:mode={colorMode} {index} on:remove={removeColor} {showControls} />
-  </div>
   {/each}
 </div>

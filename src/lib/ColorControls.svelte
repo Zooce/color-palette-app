@@ -214,6 +214,7 @@
 		align-items: center;
 		gap: 7px;
     min-width: 186px;
+		position: relative;
 	}
   .controls {
     display: flex;
