@@ -1,3 +1,7 @@
+# color-palette-app
+
+I've tried too many color palette applications online and they all are just too fancy and don't give me the freedom I want. So, I built my own!
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
