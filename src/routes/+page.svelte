@@ -32,9 +32,26 @@
   }
 </script>
 
+<div class="common-controls">
+  <select bind:value={colorMode}>
+    <option value="RGB">RGB</option>
+    <option value="HSB">HSB</option>
+  </select>
+
+  <button on:click={addColor}>Add Color</button>
+
+  <button on:click={toggleControls}>{toggleText}</button>
+</div>
+
+<div class="color-palette">
+  {#each colorIds as colorId, index (colorId)}
+    <ColorControls bind:mode={colorMode} {index} on:remove={removeColor} {showControls} />
+  {/each}
+</div>
+
 <style>
   * {
-    font-family:'Courier New', Courier, monospace;
+    font-family: 'Courier New', Courier, monospace;
   }
   .color-palette {
     display: flex;
@@ -50,20 +67,3 @@
     margin-bottom: 10px;
   }
 </style>
-
-<div class=common-controls>
-  <select bind:value={colorMode}>
-    <option value=RGB>RGB</option>
-    <option value=HSB>HSB</option>
-  </select>
-
-  <button on:click={addColor}>Add Color</button>
-
-  <button on:click={toggleControls}>{toggleText}</button>
-</div>
-
-<div class=color-palette>
-  {#each colorIds as colorId, index (colorId)}
-    <ColorControls bind:mode={colorMode} {index} on:remove={removeColor} {showControls} />
-  {/each}
-</div>
