@@ -16,7 +16,6 @@
     // @ts-ignore
     colorIds.splice(event.detail.index, 1);
     colorIds = colorIds;
-    console.log(colorIds);
   }
 
   let showControls = true;
@@ -35,7 +34,7 @@
 <div class="common-controls">
   <select bind:value={colorMode}>
     <option value="RGB">RGB</option>
-    <option value="HSB">HSB</option>
+    <option value="HSV">HSV</option>
   </select>
 
   <button on:click={addColor}>Add Color</button>

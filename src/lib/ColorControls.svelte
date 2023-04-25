@@ -1,150 +1,72 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import { rgbToHsv, hsvToRgb, rgbToHex, hsvToHex } from '$lib/colorUtils';
   const dispatch = createEventDispatcher();
 
-  export let showControls = true;
   /** @type {number} */
-  export let index;
-  export let mode = 'RGB'; // or HSB
-
+  export let index; // expecting parent to set this
+  export let mode = 'RGB'; // or HSV
+  export let showControls = true;
   let showButton = false;
 
+  let hex = '#000000';
   /** @type {[number, number, number]} */
   let values = [0, 0, 0];
-  let hex = '#000000';
+  /** @type {[number, number, number]} */
+  let rgb = [0, 0, 0];
+  /** @type {[number, number, number]} */
+  let hsv = [0, 0, 0];
 
-  // we don't want this reactive value to change based on `values` hence the indirection functions
-  $: if (mode === 'HSB') {
-    values = toHsb();
-    console.log('values changed');
+  // indirection arrow functions (to control reactivity)
+  const isHsv = () => mode === 'HSV';
+  const toHsv = () => hsv;
+  const toRgb = () => rgb;
+
+  $: try { rgb = isHsv() ? hsvToRgb(values) : values } catch {};
+  $: try { hsv = isHsv() ? values : rgbToHsv(values) } catch {};
+  $: if (mode === 'HSV') {
+    values = toHsv();
   } else {
     values = toRgb();
-    console.log('values changed');
   }
+  $: try { hex = rgbToHex(rgb); } catch {};
 
-  function toHsb() {
-    return rgbToHsb(values);
-  }
-  function toRgb() {
-    return hsbToRgb(values);
-  }
-
-  /**
-   * Convert RGB to HSB.
-   * (credit: https://github.com/Qix-/color-convert/blob/master/conversions.js)
-   * @param {[number, number, number]} rgb
-   * @return {[number, number, number]}
-   */
-  export function rgbToHsb(rgb) {
-    let rdif;
-    let gdif;
-    let bdif;
-    let h = 0;
-    let s = 0;
-
-    const r = rgb[0] / 255;
-    const g = rgb[1] / 255;
-    const b = rgb[2] / 255;
-    const v = Math.max(r, g, b);
-    const diff = v - Math.min(r, g, b);
-    const diffc = function (/** @type number */ c) {
-      return (v - c) / 6 / diff + 1 / 2;
-    };
-
-    if (diff !== 0) {
-      s = diff / v;
-      rdif = diffc(r);
-      gdif = diffc(g);
-      bdif = diffc(b);
-
-      if (r === v) {
-        h = bdif - gdif;
-      } else if (g === v) {
-        h = 1 / 3 + rdif - bdif;
-      } else if (b === v) {
-        h = 2 / 3 + gdif - rdif;
-      }
-
-      if (h < 0) {
-        h += 1;
-      } else if (h > 1) {
-        h -= 1;
-      }
-    }
-
-    return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
-  }
-
-  /**
-   * Convert HSB to RGB.
-   * (credit: https://github.com/Qix-/color-convert/blob/master/conversions.js)
-   * @param {[number, number, number]} hsb
-   * @return {[number, number, number]}
-   */
-  function hsbToRgb(hsb) {
-    const h = hsb[0] / 60;
-    const s = hsb[1] / 100;
-    let v = hsb[2] / 100;
-    const hi = Math.floor(h) % 6;
-
-    const f = h - Math.floor(h);
-    let p = 255 * v * (1 - s);
-    let q = 255 * v * (1 - s * f);
-    let t = 255 * v * (1 - s * (1 - f));
-    v *= 255;
-
-    v = Math.round(v);
-    p = Math.round(p);
-    q = Math.round(q);
-    t = Math.round(t);
-
-    switch (hi) {
-      case 0:
-        return [v, t, p];
-      case 1:
-        return [q, v, p];
-      case 2:
-        return [p, v, t];
-      case 3:
-        return [p, q, v];
-      case 4:
-        return [t, p, v];
-      case 5:
-        return [v, p, q];
-      default:
-        return [0, 0, 0];
-    }
-  }
-
-  $: try {
-    hex = `#${(mode === 'HSB' ? hsbToRgb(values) : values)
-      .map((x) => x.toString(16).padStart(2, '0'))
-      .join('')}`;
-    console.log('hex changed');
-  } catch {
-    console.error('invalid values');
-  }
-
-  function hexInput(/** @type {Event} */ event) {
-    // @ts-ignore
-    let newHex = event.target?.value;
-    if (newHex.length !== 7) {
+  // @ts-ignore
+  function hexInput(event) {
+    /** @type {string} */
+    let newHex = event.target.value;
+    if (newHex.length === 6 && !newHex.startsWith('#')) {
+      newHex = `#{newHex}`;
+    } else if (newHex.length !== 7) {
       return;
     }
+    console.log('hexInput', newHex);
     try {
       /** @type {[number, number, number]} */
-      let rgb = [
+      rgb = [
         parseInt(newHex.substring(1, 3), 16), // #<12>3456
         parseInt(newHex.substring(3, 5), 16), // #12<34>56
         parseInt(newHex.substring(5), 16) // #1234<56>
       ];
-      if (mode === 'HSB') {
-        values = rgbToHsb(rgb);
+      console.log('hexInput', rgb);
+      if (mode === 'HSV') {
+        values = rgbToHsv(rgb);
       } else {
         values = rgb;
       }
     } catch {
-      console.error('invalid hex value', newHex);
+      // invalid hex color input - just ignore it
+    }
+  }
+
+  // @ts-ignore
+  function numberInput(event) {
+    /** @type {string} */
+    let newValue = event.target.value;
+    if (newValue) {
+      // I can't set id to a number, so it actually has the single quote characters in it
+      const index = parseInt(event.target.id.replace("'", ''));
+      values[index] = parseInt(newValue);
     }
   }
 </script>
@@ -155,7 +77,7 @@
   <!-- color display -->
   <div
     class="color-display"
-    style="background-color: {hex}"
+    style="background-color: rgb({rgb[0]} {rgb[1]} {rgb[2]})"
     on:mouseenter={() => {
       showButton = true;
     }}
@@ -190,15 +112,17 @@
           class="slider"
           type="range"
           min="0"
-          max={mode === 'HSB' ? (index === 0 ? 360 : 100) : 255}
+          max={mode === 'HSV' ? (index === 0 ? 360 : 100) : 255}
           bind:value={values[index]}
         />
         <input
+          id="'{index}'"
           class="slider-value"
           type="number"
           min="0"
-          max={mode === 'HSB' ? (index === 0 ? 360 : 100) : 255}
-          bind:value={values[index]}
+          max={mode === 'HSV' ? (index === 0 ? 360 : 100) : 255}
+          value={values[index]}
+          on:input={numberInput}
         />
       </div>
     {/each}
