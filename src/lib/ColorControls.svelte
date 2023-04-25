@@ -12,24 +12,18 @@
   let hex = '#000000';
   /** @type {[number, number, number]} */
   let values = [0, 0, 0];
-  /** @type {[number, number, number]} */
-  let rgb = [0, 0, 0];
-  /** @type {[number, number, number]} */
-  let hsv = [0, 0, 0];
 
   // indirection arrow functions (to control reactivity)
   const isHsv = () => mode === 'HSV';
-  const toHsv = () => hsv;
-  const toRgb = () => rgb;
+  const toHsv = () => rgbToHsv(values);
+  const toRgb = () => hsvToRgb(values);
 
-  $: try { rgb = isHsv() ? hsvToRgb(values) : values } catch {};
-  $: try { hsv = isHsv() ? values : rgbToHsv(values) } catch {};
   $: if (mode === 'HSV') {
     values = toHsv();
   } else {
     values = toRgb();
   }
-  $: try { hex = rgbToHex(rgb); } catch {};
+  $: try { hex = isHsv() ? hsvToHex(values) : rgbToHex(values); } catch {};
 
   // @ts-ignore
   function hexInput(event) {
@@ -43,7 +37,7 @@
     console.log('hexInput', newHex);
     try {
       /** @type {[number, number, number]} */
-      rgb = [
+      const rgb = [
         parseInt(newHex.substring(1, 3), 16), // #<12>3456
         parseInt(newHex.substring(3, 5), 16), // #12<34>56
         parseInt(newHex.substring(5), 16) // #1234<56>
@@ -77,7 +71,7 @@
   <!-- color display -->
   <div
     class="color-display"
-    style="background-color: rgb({rgb[0]} {rgb[1]} {rgb[2]})"
+    style="background-color: {hex}"
     on:mouseenter={() => {
       showButton = true;
     }}
