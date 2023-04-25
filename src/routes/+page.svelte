@@ -31,6 +31,8 @@
   }
 </script>
 
+<!-- HTML -->
+
 <div class="container">
   <div class="common-controls">
     <select bind:value={colorMode}>
@@ -50,6 +52,8 @@
   </div>
 </div>
 
+<!-- STYLE -->
+
 <style>
   * {
     font-family: 'Courier New', Courier, monospace;
@@ -58,7 +62,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 1rem;
   }
   .color-palette {
     display: flex;
