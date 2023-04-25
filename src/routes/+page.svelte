@@ -31,26 +31,34 @@
   }
 </script>
 
-<div class="common-controls">
-  <select bind:value={colorMode}>
-    <option value="RGB">RGB</option>
-    <option value="HSV">HSV</option>
-  </select>
+<div class="container">
+  <div class="common-controls">
+    <select bind:value={colorMode}>
+      <option value="RGB">RGB</option>
+      <option value="HSV">HSV</option>
+    </select>
 
-  <button on:click={addColor}>Add Color</button>
+    <button on:click={addColor}>Add Color</button>
 
-  <button on:click={toggleControls}>{toggleText}</button>
-</div>
+    <button on:click={toggleControls}>{toggleText}</button>
+  </div>
 
-<div class="color-palette">
-  {#each colorIds as colorId, index (colorId)}
-    <ColorControls bind:mode={colorMode} {index} on:remove={removeColor} {showControls} />
-  {/each}
+  <div class="color-palette">
+    {#each colorIds as colorId, index (colorId)}
+      <ColorControls bind:mode={colorMode} {index} on:remove={removeColor} {showControls} />
+    {/each}
+  </div>
 </div>
 
 <style>
   * {
     font-family: 'Courier New', Courier, monospace;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
   }
   .color-palette {
     display: flex;
@@ -63,6 +71,5 @@
     display: flex;
     justify-content: left;
     gap: 1rem;
-    margin-bottom: 10px;
   }
 </style>
